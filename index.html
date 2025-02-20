@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Special Birthday Message</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset and basic styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      color: white;
+      background-size: 400% 400%;
+      animation: gradientAnimation 20s ease infinite;
+    }
+    @keyframes gradientAnimation {
+      0% { background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d); }
+      50% { background: linear-gradient(45deg, #fdbb2d, #b21f1f, #1a2a6c); }
+      100% { background: linear-gradient(45deg, #1a2a6c, #b21f1f, #fdbb2d); }
+    }
+    /* Stars background */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: radial-gradient(circle at center, rgba(10,25,47,0.8) 0%, #000 100%);
+      z-index: 0;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle 2s infinite;
+    }
+    /* Main container */
+    .container {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 2;
+    }
+    /* Initial view styles */
+    .initial-view {
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards;
+    }
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .question {
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      font-family: 'Dancing Script', cursive;
+      color: #ffd700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+    }
+    .buttons {
+      display: flex;
+      gap: 20px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      background: transparent;
+      color: white;
+      border: 2px solid #ffd700;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    button:hover {
+      background: #ffd700;
+      color: #000;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+    }
+    /* Message container styles */
+    .message-container {
+      display: none;
+      width: 100%;
+      max-width: 800px;
+      text-align: center;
+    }
+    .message-box {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.8s ease;
+    }
+    .message-box.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+    .message-text {
+      font-size: 1.5rem;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      white-space: pre-line;
+      min-height: 100px;
+    }
+    .next-btn {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      background: #ffd700;
+      color: #000;
+      transition: background 0.3s;
+    }
+    .next-btn:hover {
+      background: #e6c200;
+    }
+    /* Confetti container */
+    .confetti-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 3;
+    }
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: #ffd700;
+      opacity: 0.8;
+      transform: rotate(45deg);
+      animation: confetti-fall 3s linear infinite;
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-10px) rotate(45deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(405deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="stars"></div>
+  <div class="confetti-container" id="confettiContainer"></div>
+  <div class="container">
+    <!-- Initial view with the question -->
+    <div class="initial-view" id="initialView">
+      <div class="question">Would you like to open a special birthday message? ✨</div>
+      <div class="buttons">
+        <button onclick="startMessage()">Yes, please!</button>
+        <button onclick="startMessage()">Maybe later...</button>
+      </div>
+    </div>
+    <!-- Message container with typewriter effect -->
+    <div class="message-container" id="messageContainer">
+      <div class="message-box" id="messageBox">
+        <div class="message-text" id="messageText"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextStep()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Generate twinkling stars in the background
+    function createStars() {
+      const stars = document.querySelector('.stars');
+      for (let i = 0; i < 150; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDuration = 2 + Math.random() * 3 + 's';
+        stars.appendChild(star);
+      }
+    }
+    createStars();
+
+    // Launch confetti particles
+    function launchConfetti() {
+      const container = document.getElementById('confettiContainer');
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = randomColor();
+        confetti.style.animationDuration = 2 + Math.random() * 3 + 's';
+        container.appendChild(confetti);
+        confetti.addEventListener('animationend', () => confetti.remove());
+      }
+    }
+    function randomColor() {
+      const colors = ['#ffd700', '#ff69b4', '#adff2f', '#00ffff', '#ff4500'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // Custom typewriter effect to display messages letter by letter
+    function typeWriter(text, i, callback) {
+      if (i < text.length) {
+        document.getElementById("messageText").innerHTML += text.charAt(i);
+        setTimeout(function() {
+          typeWriter(text, i + 1, callback);
+        }, 50);
+      } else {
+        if (callback) callback();
+      }
+    }
+
+    // Define multiple message steps
+    const messages = [
+      "HAPPIEST BIRTHDAY TO YOU 🎂🎉\nMay your day be filled with joy and laughter!",
+      "I hope this year brings you remarkable adventures and endless possibilities.",
+      "Remember, every moment is a chance to shine. Embrace your uniqueness!",
+      "Keep your spirit high and let your dreams soar.\nHappy Birthday, and cheers to an amazing year ahead!"
+    ];
+    let currentStep = 0;
+
+    // Start the message sequence by hiding the initial view and showing the message container
+    function startMessage() {
+      document.getElementById('initialView').style.display = 'none';
+      document.getElementById('messageContainer').style.display = 'block';
+      showMessage();
+    }
+
+    // Show the current message with typewriter effect
+    function showMessage() {
+      document.getElementById("messageText").innerHTML = "";
+      document.getElementById("messageBox").classList.add("show");
+      typeWriter(messages[currentStep], 0, function() {
+        if (currentStep === messages.length - 1) {
+          document.getElementById("nextBtn").innerText = "Celebrate!";
+        }
+      });
+    }
+
+    // Move to the next step or launch confetti at the end
+    function nextStep() {
+      if (currentStep < messages.length - 1) {
+        currentStep++;
+        document.getElementById("messageText").innerHTML = "";
+        showMessage();
+      } else {
+        launchConfetti();
+        document.getElementById("messageBox").innerHTML =
+          "<h2 style='font-family: Dancing Script, cursive; font-size:3rem; color:#ffd700;'>Happy Birthday!</h2>";
+      }
+    }
+  </script>
+</body>
+</html>
